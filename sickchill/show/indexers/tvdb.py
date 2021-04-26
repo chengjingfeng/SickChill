@@ -6,7 +6,6 @@ import traceback
 import requests
 import tvdbsimple
 
-# from sickchill import logger
 import sickchill.start
 from sickchill import logger, settings
 from sickchill.tv import TVEpisode
@@ -32,38 +31,29 @@ class TVDB(Indexer):
         self.updates = tvdbsimple.Updates
 
     @ExceptionDecorator()
-    def series(self, *args, **kwargs):
-        result = self._series(*args, **kwargs)
-        if result:
-            result.info(language=kwargs.get("language"))
-        return result
-
-    @ExceptionDecorator()
     def get_series_by_id(self, indexerid, language=None):
         result = self._series(indexerid, language)
         if result:
             result.info(language=language)
         return result
 
-    @ExceptionDecorator()
-    def series_from_show(self, show):
-        result = self._series(show.indexerid, show.lang)
-        if result:
-            result.info(language=show.lang)
-        return result
-
-    def series_from_episode(self, episode):
-        return self.series_from_show(episode.show)
-
     def get_series_by_name(self, name, indexerid=None, language=None):
         if indexerid:
             return self.get_series_by_id(indexerid, language)
 
         # Just return the first result for now
-        result = self._series(self.search(name, language)[0]["id"])
-        if result:
-            result.info(language=language)
-        return result
+        results = self.search(name, language)
+        if results:
+            return self.get_series_by_id(results[0]["id"], language)
+
+        return None
+
+    @ExceptionDecorator()
+    def series_from_show(self, show):
+        return self.get_series_by_id(show.indexerid, show.lang)
+
+    def series_from_episode(self, episode):
+        return self.series_from_show(episode.show)
 
     @ExceptionDecorator()
     def episodes(self, show, season=None):

@@ -129,16 +129,10 @@ class ShowIndexer(object):
         return None, None
 
     def series_by_id(self, indexerid, indexer, language):
-        series = self.indexers[indexer].series(id=indexerid, language=language)
-        if series:
-            series.info(language)
-        return series
+        return self.indexers[indexer].get_series_by_id(indexerid, language)
 
     def series(self, show):
-        result = self.series_by_id(indexerid=show.indexerid, indexer=show.indexer, language=show.lang)
-        if result:
-            result.info()
-        return result
+        return self.series_by_id(indexerid=show.indexerid, indexer=show.indexer, language=show.lang)
 
     def episodes(self, show, season):
         return self.indexers[show.indexer].episodes(show, season)
